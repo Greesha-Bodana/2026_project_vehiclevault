@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 
 export const UserNavbar = () => {
   return (
@@ -19,10 +19,42 @@ export const UserNavbar = () => {
 
             {/* CENTER MENU */}
             <ul className="hidden md:flex gap-8 text-sm font-medium">
-              <li className="hover:text-blue-400 cursor-pointer">Home</li>
-              <li className="hover:text-blue-400 cursor-pointer">Vehicles</li>
-              <li className="hover:text-blue-400 cursor-pointer">Services</li>
-              <li className="hover:text-blue-400 cursor-pointer">About</li>
+              <li>
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    isActive ? "text-blue-400" : "hover:text-blue-400"
+                  }
+                >
+                  Home
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to="useeffectdemo"
+                  className={({ isActive }) =>
+                    isActive ? "text-blue-400" : "hover:text-blue-400"
+                  }
+                >
+                  UseEffectDemo
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to="getapidemo"
+                  className={({ isActive }) =>
+                    isActive ? "text-blue-400" : "hover:text-blue-400"
+                  }
+                >
+                  GetApiDemo
+                </NavLink>
+              </li>
+
+              <li className="hover:text-blue-400 cursor-pointer">
+                About
+              </li>
             </ul>
 
             {/* RIGHT ACTIONS */}
