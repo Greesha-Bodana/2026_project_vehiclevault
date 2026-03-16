@@ -57,6 +57,17 @@ export const UserNavbar = () => {
               </li>
             </ul>
 
+            <li>
+              <NavLink
+                to="comparecars"
+                className={({ isActive }) =>
+                  isActive ? "text-blue-400" : "hover:text-blue-400"
+                }
+              >
+                Compare Cars
+              </NavLink>
+            </li>
+
             {/* RIGHT ACTIONS */}
             <div className="flex items-center gap-4">
               <button className="px-4 py-1.5 border border-blue-500 text-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition">
