@@ -8,7 +8,6 @@ import { AllUserList } from "../components/admin/AllUserList";
 import { GetApiDemo } from "../components/user/GetApiDemo";
 import { UseEffectDemo } from "../components/user/UseEffectDemo";
 import { CarList } from "../components/user/CarList";
-import { CompareCars } from "../components/user/CompareCars";
 
 
 const router = createBrowserRouter([
@@ -19,8 +18,8 @@ const router = createBrowserRouter([
             {path:"carlist", element:<CarList/>},
             {path:"cardetail", element:<CarDetail/>},
             {path:"getapidemo",element:<GetApiDemo/>},
-            {path:"useeffectdemo",element:<UseEffectDemo/>},
-            {path:"comparecars",element:<CompareCars/>}
+            {path:"useeffectdemo",element:<UseEffectDemo/>}
+
         ]
     },
     {

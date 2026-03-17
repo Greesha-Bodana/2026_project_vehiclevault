@@ -57,16 +57,6 @@ export const UserNavbar = () => {
               </li>
             </ul>
 
-            <li>
-              <NavLink
-                to="comparecars"
-                className={({ isActive }) =>
-                  isActive ? "text-blue-400" : "hover:text-blue-400"
-                }
-              >
-                Compare Cars
-              </NavLink>
-            </li>
 
             {/* RIGHT ACTIONS */}
             <div className="flex items-center gap-4">
