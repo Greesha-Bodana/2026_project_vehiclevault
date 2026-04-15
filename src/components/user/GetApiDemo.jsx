@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 export const GetApiDemo = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   const getUsers = async () => {
     try {

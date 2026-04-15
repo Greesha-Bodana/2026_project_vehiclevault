@@ -1,16 +1,32 @@
-# React + Vite
+# VehicleVault
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+VehicleVault is a car comparison system designed to help buyers make better
+decisions before purchasing a car. Users can compare two cars, review their
+similarities and differences, and understand the benefits and drawbacks of
+each option through a simple online interface.
 
-Currently, two official plugins are available:
+The system includes:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- User login for accessing car search and comparison features
+- Admin control for managing cars and posting notifications
+- Car suggestions for comparison based on the user's selected vehicle
+- Accessory recommendations for the selected car
 
-## React Compiler
+## Abstract
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Before buying a car, it is useful to compare its features and characteristics
+with other available options. VehicleVault focuses on helping buyers estimate
+the similarities and dissimilarities between two cars. A user can select two
+cars, and the system generates a brief report highlighting their benefits and
+defects. This helps users analyze vehicles effectively and make a better
+purchase decision.
 
-## Expanding the ESLint configuration
+The system also includes an admin login with full control over car postings and
+notifications. After logging in, users can search for a car, view possible
+comparison options, and evaluate a variety of features side by side. An
+additional advantage of the system is that it suggests the best accessories for
+the selected car.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+This frontend is built with React and Vite. The original project concept
+references a .NET platform with a SQL database for storing user-specific
+details, while this repository currently contains the React frontend layer.
