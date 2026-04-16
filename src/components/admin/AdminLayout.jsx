@@ -26,6 +26,9 @@ export const AdminLayout = () => {
           <NavLink to="/admin/users" className={navItemClass}>
             Users
           </NavLink>
+          <NavLink to="/admin/cars" className={navItemClass}>
+            Cars
+          </NavLink>
           <NavLink to="/" className={navItemClass}>
             Back to site
           </NavLink>

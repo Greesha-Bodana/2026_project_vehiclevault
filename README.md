@@ -30,3 +30,26 @@ the selected car.
 This frontend is built with React and Vite. The original project concept
 references a .NET platform with a SQL database for storing user-specific
 details, while this repository currently contains the React frontend layer.
+
+## Backend setup
+
+A backend server has been added in the `backend` folder. It exposes API endpoints for:
+
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `GET /api/cars`
+- `GET /api/cars/:id`
+
+### Run the backend
+
+1. Open a terminal in `backend`
+2. Install dependencies: `npm install`
+3. Copy `.env.example` to `.env` and set `MONGO_URI` and `JWT_SECRET`
+4. Start the server: `npm run dev`
+
+### Run the frontend
+
+1. At the workspace root run: `npm install`
+2. Start the app: `npm run dev`
+
+The frontend reads `VITE_API_URL` from `.env` and connects to the backend at `http://localhost:5000/api`.

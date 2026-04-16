@@ -4,11 +4,13 @@ import Signup from "../components/Signup";
 import { AdminDashboard } from "../components/admin/AdminDashboard";
 import { AdminLayout } from "../components/admin/AdminLayout";
 import { AdminUsers } from "../components/admin/AdminUsers";
+import { AdminCars } from "../components/admin/AdminCars";
 import { CarCatalog } from "../components/user/CarCatalog";
-import { CarDetailsPage } from "../components/user/CarDetailsPage";
+import { CarDetails } from "../components/user/CarDetails";
 import { GetApiDemo } from "../components/user/GetApiDemo";
 import { UseEffectDemo } from "../components/user/UseEffectDemo";
 import { UserDashboard } from "../components/user/UserDashboard";
+import { UserHome } from "../components/user/UserHome";
 import { UserLayout } from "../components/user/UserLayout";
 
 const router = createBrowserRouter([
@@ -18,10 +20,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <UserLayout />,
     children: [
-      { index: true, element: <UserDashboard /> },
+      { index: true, element: <UserHome /> },
       { path: "dashboard", element: <UserDashboard /> },
       { path: "cars", element: <CarCatalog /> },
-      { path: "cars/:id", element: <CarDetailsPage /> },
+      { path: "cars/:id", element: <CarDetails /> },
       { path: "getapidemo", element: <GetApiDemo /> },
       { path: "useeffectdemo", element: <UseEffectDemo /> }
     ]
@@ -32,7 +34,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: "dashboard", element: <AdminDashboard /> },
-      { path: "users", element: <AdminUsers /> }
+      { path: "users", element: <AdminUsers /> },
+      { path: "cars", element: <AdminCars /> }
     ]
   }
 ]);

@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import API from "../services/api";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -12,10 +13,23 @@ const Signup = () => {
     formState: { errors }
   } = useForm();
 
-  const submitHandler = (data) => {
-    console.log("Signup form data:", data);
-    toast.success("Signup form ready. Connect your backend to create users.");
-    navigate("/login");
+  const submitHandler = async (data) => {
+    try {
+      const payload = {
+        name: data.fullName,
+        email: data.email,
+        password: data.password
+      };
+      const res = await API.post("/user/register", payload);
+
+      if (res.status === 201) {
+        toast.success(res.data.message || "Account created successfully.");
+        navigate("/login", { replace: true });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Failed to create account.");
+    }
   };
 
   return (

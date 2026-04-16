@@ -1,6 +1,6 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import API from "../../services/api";
 
 export const GetApiDemo = () => {
   const [users, setUsers] = useState([]);
@@ -9,8 +9,8 @@ export const GetApiDemo = () => {
 
   const getUsers = async () => {
     try {
-      const res = await axios.get("https://node5.onrender.com/user/user/");
-      setUsers(res.data.data || []);
+      const res = await API.get("/user");
+      setUsers(res.data || []);
     } catch (error) {
       toast.error("Unable to load users");
     } finally {
@@ -20,10 +20,8 @@ export const GetApiDemo = () => {
 
   const deleteUser = async (id) => {
     try {
-      const res = await axios.delete(
-        `https://node5.onrender.com/user/user/${id}`
-      );
-      if (res.status === 204) {
+      const res = await API.delete(`/user/${id}`);
+      if (res.status === 200 || res.status === 204) {
         toast.success("User removed successfully 🚀");
         getUsers();
       }

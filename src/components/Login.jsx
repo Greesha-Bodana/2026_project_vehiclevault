@@ -1,8 +1,8 @@
-import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import API from "../services/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,18 +15,16 @@ const Login = () => {
 
   const submitHandler = async (data) => {
     try {
-      const res = await axios.post(
-        "https://node5.onrender.com/user/login",
-        data
-      );
+      const res = await API.post("/user/login", data);
 
       if (res.status === 200) {
-        toast.success("Login successful");
-        navigate("/", { replace: true });
+        localStorage.setItem("vehiclevault_token", res.data.token);
+        toast.success(res.data.message || "Login successful");
+        navigate("/dashboard", { replace: true });
       }
     } catch (err) {
       console.error(err);
-      toast.error("Invalid email or password");
+      toast.error(err?.response?.data?.message || "Invalid email or password");
     }
   };
 
