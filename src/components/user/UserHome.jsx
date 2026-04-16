@@ -1,3 +1,5 @@
+export { VehicleVaultHome as UserHome } from "./VehicleVaultHome";
+/*
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -159,3 +161,4 @@ export const UserHome = () => {
     </div>
   );
 };
+*/

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import API from "../../services/api";
 
-export const GetApiDemo = () => {
+export const VehicleVaultGetApiDemo = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -116,9 +116,7 @@ export const GetApiDemo = () => {
                           {user.name?.charAt(0).toUpperCase() || "U"}
                         </div>
                         <div>
-                          <p className="font-semibold text-white">
-                            {user.name || "Unknown user"}
-                          </p>
+                          <p className="font-semibold text-white">{user.name || "Unknown user"}</p>
                           <p className="text-sm text-white/45">{user.role || "user"}</p>
                         </div>
                       </div>
