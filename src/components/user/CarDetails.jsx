@@ -93,6 +93,30 @@ export const CarDetails = () => {
         </section>
       </div>
 
+      <section className="rounded-[1.75rem] border border-white/10 bg-slate-950/80 p-6 shadow-2xl">
+        <h2 className="text-2xl font-semibold text-white">Accessory suggestions</h2>
+        <p className="mt-3 text-white/70">
+          Recommended accessories help buyers choose the right add-ons for this model.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {(Array.isArray(car.accessories) ? car.accessories : car.accessories ? [car.accessories] : [
+            `${car.brand || "Vehicle"} floor mats`,
+            `${car.brand || "Vehicle"} phone charger`,
+            "Roof rack", 
+            "Windshield sunshade"
+          ])
+            .slice(0, 6)
+            .map((item, index) => (
+              <span
+                key={index}
+                className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-white/80"
+              >
+                {item}
+              </span>
+            ))}
+        </div>
+      </section>
+
       <Link
         to="/cars"
         className="inline-flex rounded-full border border-white/15 px-5 py-2 text-white/80 transition hover:bg-white/10"

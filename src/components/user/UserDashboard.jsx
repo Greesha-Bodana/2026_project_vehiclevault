@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const stats = [
@@ -26,6 +26,21 @@ const featuredCars = [
 ];
 
 export const UserDashboard = () => {
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("vehiclevault_notifications");
+    if (stored) {
+      try {
+        setNotifications(JSON.parse(stored));
+      } catch {
+        setNotifications([]);
+      }
+    }
+  }, []);
+
+  const latestNotifications = notifications.slice(0, 3);
+
   return (
     <div className="space-y-8">
       <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(6,182,212,0.18),rgba(15,23,42,0.95))] p-8 shadow-2xl">
@@ -36,8 +51,7 @@ export const UserDashboard = () => {
           Compare cars, understand differences, and choose better.
         </h1>
         <p className="mt-4 max-w-2xl text-white/70">
-          VehicleVault helps buyers evaluate cars by features, benefits,
-          drawbacks, and suitable accessories before making a purchase.
+          VehicleVault helps buyers evaluate cars by feature similarities and differences, report benefits and defects, and suggest the best accessories before purchase.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
@@ -65,6 +79,37 @@ export const UserDashboard = () => {
             <p className="mt-3 text-4xl font-bold text-white">{item.value}</p>
           </article>
         ))}
+      </section>
+
+      <section className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 shadow-2xl">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
+              Admin notifications
+            </p>
+            <h2 className="mt-2 text-3xl font-bold">Latest announcements</h2>
+          </div>
+          <Link to="/admin/notifications" className="text-sm text-cyan-300">
+            View all
+          </Link>
+        </div>
+
+        {latestNotifications.length === 0 ? (
+          <p className="mt-6 text-white/70">
+            No notifications yet. Check back after the admin publishes announcements.
+          </p>
+        ) : (
+          <div className="mt-6 space-y-4">
+            {latestNotifications.map((note) => (
+              <article key={note.id} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+                <p className="text-sm text-white/60">
+                  {new Date(note.createdAt).toLocaleDateString()} {new Date(note.createdAt).toLocaleTimeString()}
+                </p>
+                <p className="mt-2 text-white/80">{note.message}</p>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="rounded-[2rem] border border-white/10 bg-white/6 p-8 shadow-2xl backdrop-blur">

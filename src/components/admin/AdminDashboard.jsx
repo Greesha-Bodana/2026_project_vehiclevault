@@ -11,12 +11,11 @@ export const AdminDashboard = () => {
     <div className="space-y-8">
       <div>
         <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-          Admin Dashboard
+          Admin Control Center
         </p>
-        <h1 className="mt-2 text-4xl font-bold">Manage VehicleVault</h1>
+        <h1 className="mt-2 text-4xl font-bold">VehicleVault Admin Dashboard</h1>
         <p className="mt-3 max-w-2xl text-white/65">
-          Review the main platform metrics and manage user-facing content from
-          one place.
+          Sole admin control to post cars, publish notifications, and manage the comparison platform for buyers.
         </p>
       </div>
 

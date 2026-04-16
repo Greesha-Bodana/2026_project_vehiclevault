@@ -13,8 +13,12 @@ export const AdminCars = () => {
     try {
       setLoading(true);
       const res = await API.get("/car");
-      setCars(res.data || []);
-    } catch (err) {
+      const payload = res.data;
+      const carList = Array.isArray(payload)
+        ? payload
+        : payload?.cars || payload?.data || [];
+      setCars(carList);
+    } catch (err) {IS
       console.error(err);
       toast.error("Unable to fetch cars.");
     } finally {

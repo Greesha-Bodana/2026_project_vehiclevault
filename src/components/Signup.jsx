@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -6,6 +6,9 @@ import API from "../services/api";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
   const {
     register,
     handleSubmit,
@@ -13,14 +16,27 @@ const Signup = () => {
     formState: { errors }
   } = useForm();
 
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const submitHandler = async (data) => {
     try {
-      const payload = {
-        name: data.fullName,
-        email: data.email,
-        password: data.password
-      };
-      const res = await API.post("/user/register", payload);
+      const formData = new FormData();
+      formData.append("name", data.fullName);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      if (selectedImage) {
+        formData.append("profileImage", selectedImage);
+      }
+
+      const res = await API.post("/user/register", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
 
       if (res.status === 201) {
         toast.success(res.data.message || "Account created successfully.");
@@ -53,8 +69,7 @@ const Signup = () => {
               Build your VehicleVault account
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-center text-sm leading-6 text-white/70">
-              Register to save your experience, compare vehicles more easily,
-              and explore the right car with confidence.
+              Register to save comparisons, compare two cars in detail, and discover the best accessories for your chosen model.
             </p>
 
             <form
@@ -162,9 +177,36 @@ const Signup = () => {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm leading-6 text-white/75">
-                Your account gives you a smoother path to compare cars, review
-                features, and discover better choices faster.
+              <div className="space-y-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm leading-6 text-white/75">
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="profileImage"
+                    className="peer hidden"
+                    onChange={handleImageChange}
+                  />
+                  <label
+                    htmlFor="profileImage"
+                    className="flex cursor-pointer items-center justify-between rounded-xl border border-white/20 bg-slate-950/80 px-4 py-3 text-sm text-white/80 transition hover:border-emerald-300"
+                  >
+                    <span>{selectedImage ? selectedImage.name : "Upload profile image (optional)"}</span>
+                    <span className="rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-slate-950">
+                      Choose
+                    </span>
+                  </label>
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="mt-4 h-24 w-24 rounded-3xl object-cover"
+                    />
+                  )}
+                </div>
+                <p>
+                  Your account gives you a smoother path to compare cars, review
+                  features, and discover better choices faster.
+                </p>
               </div>
 
               <button
@@ -177,12 +219,13 @@ const Signup = () => {
 
             <p className="mt-6 text-center text-sm text-white/70">
               Already have an account?
-              <span
-                className="ml-1 cursor-pointer text-emerald-400"
+              <button
+                type="button"
+                className="ml-1 text-emerald-400 underline"
                 onClick={() => navigate("/login")}
               >
                 Sign in
-              </span>
+              </button>
             </p>
           </section>
         </div>

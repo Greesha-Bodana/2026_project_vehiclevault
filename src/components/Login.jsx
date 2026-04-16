@@ -49,13 +49,11 @@ const Login = () => {
               Welcome back to VehicleVault
             </h2>
             <p className="mx-auto mt-3 max-w-md text-center text-sm leading-6 text-white/70">
-              Sign in to search cars, compare specifications, and review the
-              best options for your next purchase.
+              Sign in to search cars, compare two vehicles, and review the best options for your next purchase.
             </p>
 
             <div className="my-8 rounded-2xl border border-white/15 bg-black/20 p-4 text-sm text-white/80">
-              VehicleVault helps buyers compare two cars, study their
-              differences, and discover recommended accessories.
+              VehicleVault is a car comparison system where buyers compare features, analyze benefits and defects, and discover accessory recommendations. Admin controls car postings and notifications.
             </div>
 
             <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
@@ -117,17 +115,27 @@ const Login = () => {
               >
                 Sign In
               </button>
-            </form>
 
-            <p className="mt-6 text-center text-sm text-white/70">
-              Don&apos;t have an account?
-              <span
-                className="ml-1 cursor-pointer text-cyan-400"
-                onClick={() => navigate("/signup")}
-              >
-                Create one
-              </span>
-            </p>
+              <div className="mt-4 flex items-center justify-between text-sm text-white/70">
+                <button
+                  type="button"
+                  className="text-cyan-300 underline"
+                  onClick={() => navigate("/forgot-password")}
+                >
+                  Forgot password?
+                </button>
+                <span>
+                  Don&apos;t have an account?
+                  <button
+                    type="button"
+                    className="ml-1 text-cyan-400 underline"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Create one
+                  </button>
+                </span>
+              </div>
+            </form>
           </section>
         </div>
       </div>
