@@ -38,7 +38,7 @@ export const CarDetails = () => {
       <div className="rounded-[2rem] border border-white/10 bg-white/6 p-8 text-white shadow-2xl backdrop-blur">
         <h1 className="text-3xl font-bold">Car not found</h1>
         <p className="mt-4 text-white/70">{error || "Unable to find this car."}</p>
-        <Link to="/cars" className="mt-4 inline-flex text-cyan-300">
+        <Link to="/user/cars" className="mt-4 inline-flex text-cyan-300">
           Back to cars
         </Link>
       </div>
@@ -118,7 +118,7 @@ export const CarDetails = () => {
       </section>
 
       <Link
-        to="/cars"
+        to="/user/cars"
         className="inline-flex rounded-full border border-white/15 px-5 py-2 text-white/80 transition hover:bg-white/10"
       >
         Back to car list

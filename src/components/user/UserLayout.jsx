@@ -1,13 +1,51 @@
-import React from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 export const UserLayout = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("vehiclevault_token");
+
+  const parseJwtPayload = (tokenValue) => {
+    if (!tokenValue) return null;
+    try {
+      const payload = tokenValue.split(".")[1];
+      if (!payload) return null;
+      const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+      return JSON.parse(decodeURIComponent(escape(decoded)));
+    } catch {
+      return null;
+    }
+  };
+
+  const getRole = () => {
+    const storedRole = localStorage.getItem("vehiclevault_role")?.toString().trim().toUpperCase();
+    if (storedRole) return storedRole;
+
+    const payload = parseJwtPayload(token);
+    if (!payload) return null;
+
+    return (
+      payload.role ||
+      payload.roles ||
+      payload.user?.role ||
+      (Array.isArray(payload.roles) ? payload.roles[0] : null)
+    )?.toString()?.trim()?.toUpperCase() || null;
+  };
+
+  const [role, setRole] = useState(getRole);
+
   const navLinkClass = ({ isActive }) =>
-    `rounded-full px-4 py-2 transition ${
+    `rounded-full border border-transparent px-4 py-2.5 text-sm font-medium transition-all ${
       isActive
-        ? "bg-cyan-400/15 text-cyan-200 shadow-[0_0_0_1px_rgba(103,232,249,0.15)]"
-        : "text-white/75 hover:bg-white/8 hover:text-white"
+        ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-100 shadow-lg shadow-cyan-500/10"
+        : "text-white/70 hover:border-white/20 hover:bg-white/10 hover:text-white"
     }`;
+
+  const handleLogout = () => {
+    localStorage.removeItem("vehiclevault_token");
+    localStorage.removeItem("vehiclevault_role");
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-transparent text-white">
@@ -17,9 +55,9 @@ export const UserLayout = () => {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[size:84px_84px] opacity-20" />
       </div>
 
-      <nav className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/75 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
-          <NavLink to="/" className="flex items-center gap-3">
+      <nav className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/95 shadow-lg shadow-slate-950/20 backdrop-blur-xl">
+        <div className="mx-auto flex flex-wrap items-center justify-between gap-4 px-6 py-4 max-w-7xl">
+          <NavLink to="/user" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-300 via-cyan-400 to-blue-500 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/20">
               VV
             </div>
@@ -31,34 +69,31 @@ export const UserLayout = () => {
             </div>
           </NavLink>
 
-          <div className="hidden items-center gap-2 md:flex">
-            <NavLink to="/" end className={navLinkClass}>
+          <div className="flex flex-1 flex-wrap items-center justify-center gap-3 px-2">
+            <NavLink to="/user" end className={navLinkClass}>
               Home
             </NavLink>
-            <NavLink to="/cars" className={navLinkClass}>
+            <NavLink to="/user/cars" className={navLinkClass}>
               Cars
             </NavLink>
-            <NavLink to="/dashboard" className={navLinkClass}>
+            <NavLink to="/user/dashboard" className={navLinkClass}>
               Dashboard
             </NavLink>
-            <NavLink to="/admin" className={navLinkClass}>
-              Admin
-            </NavLink>
+            {role && ["ADMIN", "OWNER", "SUBADMIN"].includes(role) && (
+              <NavLink to="/admin" className={navLinkClass}>
+                Admin
+              </NavLink>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
-            <NavLink
-              to="/login"
-              className="rounded-full border border-cyan-400/40 px-4 py-2 text-sm text-cyan-300 transition hover:bg-cyan-400/10"
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-full bg-white/10 px-4 py-2 text-sm text-white transition hover:bg-white/20"
             >
-              Login
-            </NavLink>
-            <NavLink
-              to="/signup"
-              className="rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:opacity-90"
-            >
-              Signup
-            </NavLink>
+              Logout
+            </button>
           </div>
         </div>
       </nav>

@@ -20,7 +20,7 @@ export const UserHome = () => {
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
-              to="/cars"
+              to="/user/cars"
               className="rounded-full bg-cyan-500 px-7 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
             >
               Compare cars

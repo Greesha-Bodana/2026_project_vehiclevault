@@ -51,7 +51,7 @@ export const CompareCars = () => {
         <h1 className="text-3xl font-bold text-white">Comparison unavailable</h1>
         <p className="text-white/70">{error}</p>
         <Link
-          to="/cars"
+          to="/user/cars"
           className="inline-flex rounded-full border border-cyan-400/40 bg-cyan-500/10 px-5 py-3 text-sm text-cyan-200 transition hover:bg-cyan-500/20"
         >
           Back to catalog
@@ -144,13 +144,13 @@ export const CompareCars = () => {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Link
-          to="/cars"
-          className="inline-flex justify-center rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          to="/user/cars"
+          className="inline-flex justify-center rounded-full border border-white/15 bg-cyan-500/10 px-5 py-3 text-sm text-cyan-200 transition hover:bg-cyan-500/20"
         >
           Compare other cars
         </Link>
         <Link
-          to="/"
+          to="/user"
           className="inline-flex justify-center rounded-full bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
         >
           Back to home

@@ -55,7 +55,7 @@ export const UserDashboard = () => {
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            to="/cars"
+            to="/user/cars"
             className="rounded-full bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
           >
             Explore Cars
@@ -85,13 +85,10 @@ export const UserDashboard = () => {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-              Admin notifications
+              Announcements
             </p>
-            <h2 className="mt-2 text-3xl font-bold">Latest announcements</h2>
+            <h2 className="mt-2 text-3xl font-bold">Latest updates</h2>
           </div>
-          <Link to="/admin/notifications" className="text-sm text-cyan-300">
-            View all
-          </Link>
         </div>
 
         {latestNotifications.length === 0 ? (
@@ -120,7 +117,7 @@ export const UserDashboard = () => {
             </p>
             <h2 className="mt-2 text-3xl font-bold">Start with these models</h2>
           </div>
-          <Link to="/cars" className="text-sm text-cyan-300">
+          <Link to="/user/cars" className="text-sm text-cyan-300">
             View all
           </Link>
         </div>
@@ -136,7 +133,7 @@ export const UserDashboard = () => {
                 {car.summary}
               </p>
               <Link
-                to={`/cars/${car.id}`}
+                to={`/user/cars/${car.id || car._id}`}
                 className="mt-5 inline-flex rounded-full border border-cyan-400/25 px-4 py-2 text-sm text-cyan-300 transition hover:bg-cyan-400/10"
               >
                 Open details

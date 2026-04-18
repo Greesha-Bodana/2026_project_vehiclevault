@@ -1,8 +1,9 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import Login from "../components/Login";
 import Signup from "../components/Signup";
 import ForgotPassword from "../components/ForgotPassword";
 import ResetPassword from "../components/ResetPassword";
+import AuthRedirect from "../components/AuthRedirect";
 import { AdminLayout } from "../components/admin/AdminLayout";
 import { AdminUsers } from "../components/admin/AdminUsers";
 import { AdminCars } from "../components/admin/AdminCars";
@@ -16,15 +17,21 @@ import { CarDetails } from "../components/user/CarDetails";
 import { UserDashboard } from "../components/user/UserDashboard";
 import { UserLayout } from "../components/user/UserLayout";
 import { CompareCars } from "../components/user/CompareCars";
+import ProtectedRoutes from "../components/ProtectedRoutes";
 
 const router = createBrowserRouter([
+  { path: "/", element: <AuthRedirect /> },
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/reset-password/:token", element: <ResetPassword /> },
   {
-    path: "/",
-    element: <UserLayout />,
+    path: "/user",
+    element: (
+      <ProtectedRoutes userRoles={["USER"]}>
+        <UserLayout />
+      </ProtectedRoutes>
+    ),
     children: [
       { index: true, element: <UserHome /> },
       { path: "dashboard", element: <UserDashboard /> },
@@ -37,7 +44,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoutes userRoles={["ADMIN", "OWNER", "SUBADMIN"]}>
+        <AdminLayout />
+      </ProtectedRoutes>
+    ),
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: "dashboard", element: <AdminDashboard /> },

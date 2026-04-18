@@ -18,7 +18,7 @@ export const AdminCars = () => {
         ? payload
         : payload?.cars || payload?.data || [];
       setCars(carList);
-    } catch (err) {IS
+    } catch (err) {
       console.error(err);
       toast.error("Unable to fetch cars.");
     } finally {

@@ -30,7 +30,7 @@ export const CarCatalog = () => {
 
   const compareCars = () => {
     if (!canCompare) return;
-    navigate(`/compare?first=${compareSelection[0]}&second=${compareSelection[1]}`);
+    navigate(`/user/compare?first=${compareSelection[0]}&second=${compareSelection[1]}`);
   };
 
   useEffect(() => {
@@ -221,7 +221,7 @@ export const CarCatalog = () => {
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <Link
-                    to={`/cars/${car._id}`}
+                    to={`/user/cars/${car._id}`}
                     className="inline-flex rounded-full bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
                   >
                     View details

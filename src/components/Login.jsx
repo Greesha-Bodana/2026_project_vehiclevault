@@ -13,14 +13,73 @@ const Login = () => {
     formState: { errors }
   } = useForm();
 
+  const parseJwtPayload = (token) => {
+    if (!token) return null;
+    try {
+      const payload = token.split(".")[1];
+      if (!payload) return null;
+      const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+      return JSON.parse(decodeURIComponent(escape(decoded)));
+    } catch {
+      return null;
+    }
+  };
+
+  const getRoleFromResponse = (response, token) => {
+    const roleCandidate =
+      response?.role ||
+      response?.data?.role ||
+      response?.user?.role ||
+      response?.data?.user?.role;
+
+    if (roleCandidate) {
+      return roleCandidate.toString().trim();
+    }
+
+    const payload = parseJwtPayload(token);
+    if (!payload) return null;
+
+    return (
+      payload.role || payload.roles || payload.user?.role || payload.user?.roles || null
+    )?.toString()?.trim();
+  };
+
   const submitHandler = async (data) => {
     try {
       const res = await API.post("/user/login", data);
 
       if (res.status === 200) {
-        localStorage.setItem("vehiclevault_token", res.data.token);
+        const token =
+          res.data.token ||
+          res.data.data?.token ||
+          res.data.accessToken ||
+          res.data.data?.accessToken ||
+          res.data.user?.token ||
+          res.data.data?.user?.token;
+        let role = getRoleFromResponse(res.data, token);
+
+        if (!token) {
+          toast.error("Login succeeded but token was not returned.");
+          return;
+        }
+
+        role = role?.toString().trim();
+        if (!role) {
+          role = "USER";
+        }
+
+        localStorage.setItem("vehiclevault_token", token);
+        localStorage.setItem("vehiclevault_role", role.toUpperCase());
+
         toast.success(res.data.message || "Login successful");
-        navigate("/dashboard", { replace: true });
+
+        if (["USER", "user"].includes(role)) {
+          navigate("/user/dashboard", { replace: true });
+        } else if (["ADMIN", "admin", "OWNER", "owner"].includes(role)) {
+          navigate("/admin/dashboard", { replace: true });
+        } else {
+          navigate("/user/dashboard", { replace: true });
+        }
       }
     } catch (err) {
       console.error(err);
@@ -54,6 +113,9 @@ const Login = () => {
 
             <div className="my-8 rounded-2xl border border-white/15 bg-black/20 p-4 text-sm text-white/80">
               VehicleVault is a car comparison system where buyers compare features, analyze benefits and defects, and discover accessory recommendations. Admin controls car postings and notifications.
+            </div>
+            <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 p-4 text-sm text-cyan-100">
+              Admin accounts can sign in to manage car listings, review users, and publish notifications from the admin panel.
             </div>
 
             <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
@@ -142,5 +204,4 @@ const Login = () => {
     </div>
   );
 };
-
 export default Login;
