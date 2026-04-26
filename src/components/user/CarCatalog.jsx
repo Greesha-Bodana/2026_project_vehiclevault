@@ -8,6 +8,7 @@ export const CarCatalog = () => {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("all");
+  const [sortBy, setSortBy] = useState("latest");
   const [compareSelection, setCompareSelection] = useState([]);
   const navigate = useNavigate();
 
@@ -65,12 +66,46 @@ export const CarCatalog = () => {
         !query ||
         car.name?.toLowerCase().includes(query) ||
         car.brand?.toLowerCase().includes(query) ||
-        car.model?.toLowerCase().includes(query);
+        car.model?.toLowerCase().includes(query) ||
+        car.bodyType?.toLowerCase().includes(query);
 
       const matchesBrand = selectedBrand === "all" || car.brand === selectedBrand;
       return matchesSearch && matchesBrand;
     });
   }, [cars, search, selectedBrand]);
+
+  const sortedCars = useMemo(() => {
+    const list = [...filteredCars];
+
+    switch (sortBy) {
+      case "price-low":
+        return list.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+      case "price-high":
+        return list.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+      case "brand":
+        return list.sort((a, b) => (a.brand || "").localeCompare(b.brand || ""));
+      case "latest":
+      default:
+        return list.sort(
+          (a, b) =>
+            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        );
+    }
+  }, [filteredCars, sortBy]);
+
+  const formatPrice = (price) => {
+    if (price === undefined || price === null || price === "") return "Price on request";
+
+    try {
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0
+      }).format(Number(price));
+    } catch {
+      return `Rs. ${price}`;
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -93,7 +128,7 @@ export const CarCatalog = () => {
             <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
               <p className="text-sm uppercase tracking-[0.28em] text-white/60">Showing</p>
               <p className="mt-2 text-3xl font-semibold text-white">
-                {loading ? "..." : filteredCars.length}
+                {loading ? "..." : sortedCars.length}
               </p>
             </div>
           </div>
@@ -142,17 +177,37 @@ export const CarCatalog = () => {
           placeholder="Search by model, brand, or keyword"
           className="rounded-3xl border border-white/10 bg-slate-950/80 px-5 py-4 text-white outline-none transition focus:border-cyan-400"
         />
-        <select
-          value={selectedBrand}
-          onChange={(e) => setSelectedBrand(e.target.value)}
-          className="rounded-3xl border border-white/10 bg-slate-950/80 px-5 py-4 text-white outline-none transition focus:border-cyan-400"
-        >
-          {brandOptions.map((brand) => (
-            <option key={brand} value={brand} className="bg-slate-950 text-white">
-              {brand === "all" ? "All brands" : brand}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <select
+            value={selectedBrand}
+            onChange={(e) => setSelectedBrand(e.target.value)}
+            className="rounded-3xl border border-white/10 bg-slate-950/80 px-5 py-4 text-white outline-none transition focus:border-cyan-400"
+          >
+            {brandOptions.map((brand) => (
+              <option key={brand} value={brand} className="bg-slate-950 text-white">
+                {brand === "all" ? "All brands" : brand}
+              </option>
+            ))}
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="rounded-3xl border border-white/10 bg-slate-950/80 px-5 py-4 text-white outline-none transition focus:border-cyan-400"
+          >
+            <option value="latest" className="bg-slate-950 text-white">
+              Latest
             </option>
-          ))}
-        </select>
+            <option value="price-low" className="bg-slate-950 text-white">
+              Price low to high
+            </option>
+            <option value="price-high" className="bg-slate-950 text-white">
+              Price high to low
+            </option>
+            <option value="brand" className="bg-slate-950 text-white">
+              Brand A-Z
+            </option>
+          </select>
+        </div>
       </div>
 
       {loading ? (
@@ -163,16 +218,35 @@ export const CarCatalog = () => {
         <div className="rounded-[2rem] border border-red-500/20 bg-red-500/10 p-10 text-center text-red-200 shadow-2xl">
           {error}
         </div>
-      ) : filteredCars.length === 0 ? (
+      ) : sortedCars.length === 0 ? (
         <div className="rounded-[2rem] border border-white/10 bg-white/6 p-10 text-center text-white shadow-2xl">
           <p className="text-xl font-semibold">No cars found</p>
           <p className="mt-2 text-white/70">
             Try another search term or select a different brand.
           </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setSelectedBrand("all");
+                setSortBy("latest");
+              }}
+              className="rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              Reset filters
+            </button>
+            <Link
+              to="/user/dashboard"
+              className="rounded-full bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+            >
+              Back to dashboard
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filteredCars.map((car) => (
+          {sortedCars.map((car) => (
             <article
               key={car._id}
               className={`overflow-hidden rounded-[1.75rem] border bg-slate-900/80 shadow-xl transition hover:-translate-y-1 ${
@@ -208,14 +282,23 @@ export const CarCatalog = () => {
                   <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
                     {car.brand || "Unknown brand"}
                   </p>
-                  <h2 className="mt-3 text-2xl font-semibold text-white">{car.name || "Untitled model"}</h2>
+                  <h2 className="mt-3 text-2xl font-semibold text-white">
+                    {car.name || "Untitled model"}
+                  </h2>
                 </div>
 
                 <div className="grid gap-2 text-sm text-white/70">
                   <p>{car.description || car.summary || "No description available."}</p>
                   <div className="grid gap-2 sm:grid-cols-2">
-                    <span className="rounded-2xl bg-white/5 px-3 py-2">Price: {car.price ? `₹${car.price}` : "N/A"}</span>
-                    <span className="rounded-2xl bg-white/5 px-3 py-2">Fuel: {car.fuelType || "N/A"}</span>
+                    <span className="rounded-2xl bg-white/5 px-3 py-2">
+                      Price: {formatPrice(car.price)}
+                    </span>
+                    <span className="rounded-2xl bg-white/5 px-3 py-2">
+                      Year: {car.year || "N/A"}
+                    </span>
+                    <span className="rounded-2xl bg-white/5 px-3 py-2">
+                      Status: {car.isAvailable === false ? "Sold" : "Available"}
+                    </span>
                   </div>
                 </div>
 
@@ -226,7 +309,7 @@ export const CarCatalog = () => {
                   >
                     View details
                   </Link>
-                  <span className="text-sm text-white/50">{car.year || "Year N/A"}</span>
+                  <span className="text-sm text-white/50">VehicleVault listing</span>
                 </div>
               </div>
             </article>

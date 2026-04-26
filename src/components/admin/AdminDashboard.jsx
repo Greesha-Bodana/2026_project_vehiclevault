@@ -13,28 +13,29 @@ export const AdminDashboard = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const [usersRes, carsRes, activeUsersRes] = await Promise.all([
+        const [usersRes, carsRes, activeUsersRes, notificationsRes] = await Promise.all([
           API.get("/user"),
           API.get("/car"),
-          API.get("/user/active")
+          API.get("/user/active"),
+          API.get("/notification")
         ]);
         const users = Array.isArray(usersRes.data) ? usersRes.data : usersRes.data?.data || [];
         const cars = Array.isArray(carsRes.data) ? carsRes.data : carsRes.data?.cars || carsRes.data?.data || [];
         const activeUsers = activeUsersRes.data?.count || 0;
+        const notifications = Array.isArray(notificationsRes.data)
+          ? notificationsRes.data
+          : notificationsRes.data?.data || [];
 
         setUserCount(users.length);
         setActiveUserCount(activeUsers);
         setCarCount(cars.length);
+        setNotificationCount(notifications.length);
         setRecentUsers(users.slice(0, 5));
         setRecentCars(cars.slice(0, 5));
       } catch (err) {
         console.error(err);
       }
     };
-
-    const notifications = localStorage.getItem("vehiclevault_notifications");
-    const parsed = notifications ? JSON.parse(notifications) : [];
-    setNotificationCount(Array.isArray(parsed) ? parsed.length : 0);
 
     fetchSummary();
   }, []);

@@ -13,7 +13,7 @@ export const CarDetails = () => {
     const fetchCar = async () => {
       try {
         const response = await API.get(`/car/${id}`);
-        setCar(response.data);
+        setCar(response.data?.data || response.data);
       } catch (err) {
         console.error(err);
         setError(err?.response?.data?.message || "Car not found.");
@@ -55,12 +55,14 @@ export const CarDetails = () => {
     }
   };
 
+  const priceText = car.price ? `Rs. ${car.price}` : "Not available";
+
   return (
     <div className="space-y-6">
       <div className="rounded-[2rem] border border-white/10 bg-white/6 p-8 shadow-2xl backdrop-blur">
         <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">{car.brand || "Vehicle"}</p>
         <h1 className="mt-3 text-4xl font-bold text-white">{car.name}</h1>
-        <p className="mt-4 text-white/80">Price: {car.price ? `₹${car.price}` : "Not available"}</p>
+        <p className="mt-4 text-white/80">Price: {priceText}</p>
         {car.image && (
           <img
             src={car.image}
@@ -75,8 +77,9 @@ export const CarDetails = () => {
           <h2 className="text-2xl font-semibold text-white">Key details</h2>
           <div className="mt-4 space-y-3 text-white/75">
             <p>Brand: {car.brand || "N/A"}</p>
-            <p>Price: {car.price ? `₹${car.price}` : "N/A"}</p>
-            <p>User ID: {car.user || "N/A"}</p>
+            <p>Model: {car.model || "N/A"}</p>
+            <p>Year: {car.year || "N/A"}</p>
+            <p>Price: {priceText}</p>
           </div>
         </section>
 
@@ -94,27 +97,10 @@ export const CarDetails = () => {
       </div>
 
       <section className="rounded-[1.75rem] border border-white/10 bg-slate-950/80 p-6 shadow-2xl">
-        <h2 className="text-2xl font-semibold text-white">Accessory suggestions</h2>
+        <h2 className="text-2xl font-semibold text-white">Description</h2>
         <p className="mt-3 text-white/70">
-          Recommended accessories help buyers choose the right add-ons for this model.
+          {car.description || "No description available for this car yet."}
         </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {(Array.isArray(car.accessories) ? car.accessories : car.accessories ? [car.accessories] : [
-            `${car.brand || "Vehicle"} floor mats`,
-            `${car.brand || "Vehicle"} phone charger`,
-            "Roof rack", 
-            "Windshield sunshade"
-          ])
-            .slice(0, 6)
-            .map((item, index) => (
-              <span
-                key={index}
-                className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-white/80"
-              >
-                {item}
-              </span>
-            ))}
-        </div>
       </section>
 
       <Link

@@ -1,56 +1,62 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
-const STORAGE_KEY = "vehiclevault_notifications";
-
-const loadNotifications = () => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveNotifications = (notifications) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-};
+import API from "../../services/api";
 
 export const AdminNotifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    setNotifications(loadNotifications());
+    const fetchNotifications = async () => {
+      try {
+        const res = await API.get("/notification");
+        const payload = res.data;
+        setNotifications(Array.isArray(payload) ? payload : payload?.data || []);
+      } catch (error) {
+        console.error(error);
+        setNotifications([]);
+      }
+    };
+
+    fetchNotifications();
   }, []);
 
-  const publishNotification = (event) => {
+  const publishNotification = async (event) => {
     event.preventDefault();
-    if (!message.trim()) {
-      toast.error("Enter a notification message.");
+    if (!title.trim() || !message.trim()) {
+      toast.error("Enter a title and message.");
       return;
     }
 
-    const next = [
-      {
-        id: Date.now().toString(),
+    try {
+      const res = await API.post("/notification", {
+        title: title.trim(),
         message: message.trim(),
-        createdAt: new Date().toISOString()
-      },
-      ...notifications
-    ];
+        type: "general",
+        broadcast: true
+      });
 
-    setNotifications(next);
-    saveNotifications(next);
-    setMessage("");
-    toast.success("Notification posted.");
+      const created = res.data?.data || [];
+      setNotifications((prev) => [...created, ...prev]);
+      setTitle("");
+      setMessage("");
+      toast.success(res.data?.message || "Notification posted.");
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.message || "Unable to post notification.");
+    }
   };
 
-  const deleteNotification = (id) => {
-    const next = notifications.filter((note) => note.id !== id);
-    setNotifications(next);
-    saveNotifications(next);
-    toast.success("Notification removed.");
+  const deleteNotification = async (id) => {
+    try {
+      await API.delete(`/notification/${id}`);
+      setNotifications((prev) => prev.filter((note) => note._id !== id));
+      toast.success("Notification removed.");
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.message || "Unable to remove notification.");
+    }
   };
 
   return (
@@ -68,8 +74,14 @@ export const AdminNotifications = () => {
         className="rounded-[2rem] border border-white/10 bg-white/6 p-6 shadow-2xl backdrop-blur"
       >
         <label className="mb-3 block text-sm font-medium text-white/80">
-          Publish a notification
+          Publish an announcement
         </label>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="mb-4 w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-cyan-400"
+          placeholder="Notification title"
+        />
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -86,7 +98,10 @@ export const AdminNotifications = () => {
           </button>
           <button
             type="button"
-            onClick={() => setMessage("")}
+            onClick={() => {
+              setTitle("");
+              setMessage("");
+            }}
             className="rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm text-white transition hover:bg-white/10"
           >
             Clear
@@ -108,7 +123,7 @@ export const AdminNotifications = () => {
           <div className="mt-6 space-y-4">
             {notifications.map((note) => (
               <div
-                key={note.id}
+                key={note._id}
                 className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5"
               >
                 <div className="flex items-center justify-between gap-4">
@@ -117,13 +132,14 @@ export const AdminNotifications = () => {
                   </p>
                   <button
                     type="button"
-                    onClick={() => deleteNotification(note.id)}
+                    onClick={() => deleteNotification(note._id)}
                     className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-sm text-red-300 transition hover:bg-red-500/20"
                   >
                     Remove
                   </button>
                 </div>
-                <p className="mt-3 text-white/80">{note.message}</p>
+                <p className="mt-3 font-semibold text-white/80">{note.title}</p>
+                <p className="mt-2 text-white/80">{note.message}</p>
               </div>
             ))}
           </div>

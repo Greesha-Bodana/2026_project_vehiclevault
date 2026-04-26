@@ -1,45 +1,71 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-
-const stats = [
-  { label: "Cars available", value: "24+" },
-  { label: "Comparison insights", value: "100+" },
-  { label: "Accessory suggestions", value: "40+" }
-];
-
-const featuredCars = [
-  {
-    id: "1",
-    name: "Hyundai Creta",
-    summary: "Comfort-focused SUV with premium features."
-  },
-  {
-    id: "2",
-    name: "Honda City",
-    summary: "Refined sedan with great comfort and reliability."
-  },
-  {
-    id: "3",
-    name: "Tata Nexon",
-    summary: "Safety-first compact SUV for practical buyers."
-  }
-];
+import API from "../../services/api";
 
 export const UserDashboard = () => {
+  const [cars, setCars] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("vehiclevault_notifications");
-    if (stored) {
+    const fetchDashboard = async () => {
       try {
-        setNotifications(JSON.parse(stored));
+        const [carsRes, notificationsRes] = await Promise.all([
+          API.get("/car"),
+          API.get("/notification")
+        ]);
+
+        const carsPayload = carsRes.data;
+        const notificationsPayload = notificationsRes.data;
+
+        setCars(
+          Array.isArray(carsPayload)
+            ? carsPayload
+            : carsPayload?.data || carsPayload?.cars || []
+        );
+        setNotifications(
+          Array.isArray(notificationsPayload)
+            ? notificationsPayload
+            : notificationsPayload?.data || []
+        );
       } catch {
+        setCars([]);
         setNotifications([]);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    fetchDashboard();
   }, []);
 
+  const availableCars = useMemo(
+    () => cars.filter((car) => car.isAvailable !== false),
+    [cars]
+  );
+
+  const latestCars = cars.slice(0, 3);
   const latestNotifications = notifications.slice(0, 3);
+
+  const formatPrice = (price) => {
+    if (price === undefined || price === null || price === "") return "Price on request";
+
+    try {
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0
+      }).format(Number(price));
+    } catch {
+      return `Rs. ${price}`;
+    }
+  };
+
+  const stats = [
+    { label: "Cars available", value: cars.length.toString() },
+    { label: "Ready to buy", value: availableCars.length.toString() },
+    { label: "Announcements", value: notifications.length.toString() }
+  ];
 
   return (
     <div className="space-y-8">
@@ -48,10 +74,10 @@ export const UserDashboard = () => {
           Dashboard
         </p>
         <h1 className="mt-3 max-w-3xl text-4xl font-bold">
-          Compare cars, understand differences, and choose better.
+          Compare cars, review updates, and choose better.
         </h1>
         <p className="mt-4 max-w-2xl text-white/70">
-          VehicleVault helps buyers evaluate cars by feature similarities and differences, report benefits and defects, and suggest the best accessories before purchase.
+          VehicleVault helps buyers review the latest cars, compare vehicles side by side, and keep up with admin announcements from one place.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
@@ -61,10 +87,10 @@ export const UserDashboard = () => {
             Explore Cars
           </Link>
           <Link
-            to="/signup"
+            to="/user/compare"
             className="rounded-full border border-white/15 px-5 py-3 text-white/85 transition hover:bg-white/10"
           >
-            Create Account
+            Compare cars
           </Link>
         </div>
       </section>
@@ -85,6 +111,72 @@ export const UserDashboard = () => {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
+              Latest Cars
+            </p>
+            <h2 className="mt-2 text-3xl font-bold">Recent inventory</h2>
+          </div>
+          <Link to="/user/cars" className="text-sm text-cyan-300">
+            View all
+          </Link>
+        </div>
+
+        {loading ? (
+          <p className="mt-6 text-white/70">Loading dashboard...</p>
+        ) : latestCars.length === 0 ? (
+          <div className="mt-6 rounded-[1.75rem] border border-white/10 bg-white/5 p-6 text-white/75">
+            No cars are available yet. Check back after an admin adds new inventory.
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-5 md:grid-cols-3">
+            {latestCars.map((car) => (
+              <article
+                key={car._id}
+                className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/5"
+              >
+                <div className="h-44 bg-slate-950">
+                  {car.image ? (
+                    <img
+                      src={car.image}
+                      alt={car.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-white/50">
+                      No image available
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-3 p-5">
+                  <p className="text-xs uppercase tracking-[0.28em] text-cyan-300">
+                    {car.brand || "Vehicle"}
+                  </p>
+                  <h3 className="text-xl font-semibold text-white">
+                    {car.name || "Untitled model"}
+                  </h3>
+                  <p className="text-sm text-white/65">
+                    {car.description || "A new car listing from the VehicleVault inventory."}
+                  </p>
+                  <div className="flex items-center justify-between gap-3 text-sm text-white/75">
+                    <span>{car.year || "Year N/A"}</span>
+                    <span>{formatPrice(car.price)}</span>
+                  </div>
+                  <Link
+                    to={`/user/cars/${car._id}`}
+                    className="inline-flex rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                  >
+                    View details
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 shadow-2xl">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
               Announcements
             </p>
             <h2 className="mt-2 text-3xl font-bold">Latest updates</h2>
@@ -98,49 +190,20 @@ export const UserDashboard = () => {
         ) : (
           <div className="mt-6 space-y-4">
             {latestNotifications.map((note) => (
-              <article key={note.id} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+              <article
+                key={note._id}
+                className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5"
+              >
                 <p className="text-sm text-white/60">
-                  {new Date(note.createdAt).toLocaleDateString()} {new Date(note.createdAt).toLocaleTimeString()}
+                  {new Date(note.createdAt).toLocaleDateString()}{" "}
+                  {new Date(note.createdAt).toLocaleTimeString()}
                 </p>
+                <p className="mt-2 text-sm font-semibold text-white">{note.title}</p>
                 <p className="mt-2 text-white/80">{note.message}</p>
               </article>
             ))}
           </div>
         )}
-      </section>
-
-      <section className="rounded-[2rem] border border-white/10 bg-white/6 p-8 shadow-2xl backdrop-blur">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
-              Featured Cars
-            </p>
-            <h2 className="mt-2 text-3xl font-bold">Start with these models</h2>
-          </div>
-          <Link to="/user/cars" className="text-sm text-cyan-300">
-            View all
-          </Link>
-        </div>
-
-        <div className="mt-6 grid gap-5 md:grid-cols-3">
-          {featuredCars.map((car) => (
-            <article
-              key={car.id}
-              className="rounded-[1.5rem] border border-white/10 bg-slate-900/80 p-5"
-            >
-              <h3 className="text-xl font-semibold">{car.name}</h3>
-              <p className="mt-3 text-sm leading-6 text-white/65">
-                {car.summary}
-              </p>
-              <Link
-                to={`/user/cars/${car.id || car._id}`}
-                className="mt-5 inline-flex rounded-full border border-cyan-400/25 px-4 py-2 text-sm text-cyan-300 transition hover:bg-cyan-400/10"
-              >
-                Open details
-              </Link>
-            </article>
-          ))}
-        </div>
       </section>
     </div>
   );

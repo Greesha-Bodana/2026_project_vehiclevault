@@ -25,7 +25,10 @@ export const CompareCars = () => {
           API.get(`/car/${secondId}`)
         ]);
 
-        setCars([responses[0].data, responses[1].data]);
+        setCars([
+          responses[0].data?.data || responses[0].data,
+          responses[1].data?.data || responses[1].data
+        ]);
       } catch (err) {
         console.error(err);
         setError("Unable to load both cars for comparison. Please try again.");
@@ -63,19 +66,10 @@ export const CompareCars = () => {
   const [carA, carB] = cars;
   const rows = [
     ["Brand", carA.brand || "N/A", carB.brand || "N/A"],
-    ["Model", carA.model || carA.name || "N/A", carB.model || carB.name || "N/A"],
-    ["Price", carA.price ? `₹${carA.price}` : "N/A", carB.price ? `₹${carB.price}` : "N/A"],
-    ["Fuel", carA.fuelType || "N/A", carB.fuelType || "N/A"],
+    ["Model", carA.model || "N/A", carB.model || "N/A"],
     ["Year", carA.year || "N/A", carB.year || "N/A"],
-    ["Transmission", carA.transmission || "N/A", carB.transmission || "N/A"],
-    ["Mileage", carA.mileage || "N/A", carB.mileage || "N/A"],
-    ["Category", carA.category || "N/A", carB.category || "N/A"],
-    ["Overview", carA.description || carA.summary || "No description available.", carB.description || carB.summary || "No description available."],
-    [
-      "Accessory suggestions",
-      Array.isArray(carA.accessories) ? carA.accessories.join(", ") : carA.accessories || "No accessory data",
-      Array.isArray(carB.accessories) ? carB.accessories.join(", ") : carB.accessories || "No accessory data"
-    ]
+    ["Price", carA.price ? `Rs. ${carA.price}` : "N/A", carB.price ? `Rs. ${carB.price}` : "N/A"],
+    ["Description", carA.description || "No description available.", carB.description || "No description available."]
   ];
 
   return (
@@ -84,7 +78,7 @@ export const CompareCars = () => {
         <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">Car Comparison</p>
         <h1 className="mt-3 text-4xl font-bold">Compare two cars side by side</h1>
         <p className="mt-3 max-w-3xl text-white/70">
-          Review the strengths, weaknesses, and matching features of both vehicles to make a confident decision.
+          Review the core details of both vehicles to make a confident decision.
         </p>
       </div>
 
@@ -111,12 +105,14 @@ export const CompareCars = () => {
               <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">
                 {car.brand || "Vehicle"}
               </p>
-              <h2 className="text-3xl font-semibold text-white">{car.name || car.model || "Untitled model"}</h2>
-              <p className="text-white/70">{car.description || car.summary || "Compare this car with the other selection."}</p>
+              <h2 className="text-3xl font-semibold text-white">
+                {car.name || car.model || "Untitled model"}
+              </h2>
+              <p className="text-white/70">
+                {car.description || "Compare this car with the other selection."}
+              </p>
               <div className="grid gap-2 text-sm text-white/70">
-                <p>Price: {car.price ? `₹${car.price}` : "N/A"}</p>
-                <p>Fuel: {car.fuelType || "N/A"}</p>
-                <p>Transmission: {car.transmission || "N/A"}</p>
+                <p>Price: {car.price ? `Rs. ${car.price}` : "N/A"}</p>
                 <p>Year: {car.year || "N/A"}</p>
               </div>
             </div>

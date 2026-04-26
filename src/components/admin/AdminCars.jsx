@@ -2,12 +2,25 @@ import React, { useEffect, useState } from "react";
 import API from "../../services/api";
 import { toast } from "react-toastify";
 
+const emptyForm = {
+  name: "",
+  brand: "",
+  model: "",
+  year: "",
+  price: "",
+  image: "",
+  description: "",
+  isAvailable: true
+};
+
 export const AdminCars = () => {
   const [cars, setCars] = useState([]);
-  const [form, setForm] = useState({ name: "", brand: "", price: "", image: "" });
+  const [form, setForm] = useState(emptyForm);
   const [editing, setEditing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   const fetchCars = async () => {
     try {
@@ -30,9 +43,30 @@ export const AdminCars = () => {
     fetchCars();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview && imagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
   const resetForm = () => {
     setEditing(null);
-    setForm({ name: "", brand: "", price: "", image: "" });
+    setForm(emptyForm);
+    setSelectedImageFile(null);
+    setImagePreview("");
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0] || null;
+    setSelectedImageFile(file);
+
+    if (imagePreview && imagePreview.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setImagePreview(file ? URL.createObjectURL(file) : editing?.image || "");
   };
 
   const handleSubmit = async (event) => {
@@ -40,18 +74,38 @@ export const AdminCars = () => {
     setSaving(true);
 
     try {
-      const payload = {
-        name: form.name,
-        brand: form.brand,
-        price: Number(form.price),
-        image: form.image
-      };
+      if (!editing && !selectedImageFile) {
+        toast.error("Car image is required.");
+        setSaving(false);
+        return;
+      }
+
+      const payload = new FormData();
+      payload.append("name", form.name.trim());
+      payload.append("brand", form.brand.trim());
+      payload.append("model", form.model.trim());
+      payload.append("year", String(form.year));
+      payload.append("price", String(form.price));
+      payload.append("description", form.description.trim());
+      payload.append("isAvailable", String(form.isAvailable));
+
+      if (selectedImageFile) {
+        payload.append("image", selectedImageFile);
+      }
 
       if (editing) {
-        await API.put(`/car/${editing._id}`, payload);
+        await API.put(`/car/${editing._id}`, payload, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        });
         toast.success("Car updated successfully.");
       } else {
-        await API.post("/car", payload);
+        await API.post("/car", payload, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        });
         toast.success("Car created successfully.");
       }
 
@@ -70,9 +124,15 @@ export const AdminCars = () => {
     setForm({
       name: car.name || "",
       brand: car.brand || "",
+      model: car.model || "",
+      year: car.year?.toString() || "",
       price: car.price?.toString() || "",
-      image: car.image || ""
+      image: car.image || "",
+      description: car.description || "",
+      isAvailable: car.isAvailable !== false
     });
+    setSelectedImageFile(null);
+    setImagePreview(car.image || "");
   };
 
   const handleDelete = async (id) => {
@@ -84,8 +144,16 @@ export const AdminCars = () => {
       fetchCars();
     } catch (err) {
       console.error(err);
-      toast.error("Unable to delete car.");
+      toast.error(err?.response?.data?.message || "Unable to delete car.");
     }
+  };
+
+  const inputClass =
+    "w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-cyan-400";
+
+  const formatPrice = (price) => {
+    if (price === undefined || price === null || price === "") return "Price on request";
+    return `Rs. ${price}`;
   };
 
   return (
@@ -100,70 +168,114 @@ export const AdminCars = () => {
 
       <form
         onSubmit={handleSubmit}
-        className="grid gap-4 rounded-[2rem] border border-white/10 bg-white/6 p-6 shadow-2xl backdrop-blur md:grid-cols-[1.2fr_0.8fr]"
+        className="grid gap-6 rounded-[2rem] border border-white/10 bg-white/6 p-6 shadow-2xl backdrop-blur"
       >
-        <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-white/80">
-              Name
-            </label>
+            <label className="mb-2 block text-sm font-medium text-white/80">Name</label>
             <input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none"
+              className={inputClass}
               placeholder="Car model name"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-white/80">
-              Brand
-            </label>
+            <label className="mb-2 block text-sm font-medium text-white/80">Brand</label>
             <input
               value={form.brand}
               onChange={(e) => setForm({ ...form, brand: e.target.value })}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none"
+              className={inputClass}
               placeholder="Brand name"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-white/80">
-              Price
-            </label>
+            <label className="mb-2 block text-sm font-medium text-white/80">Model</label>
+            <input
+              value={form.model}
+              onChange={(e) => setForm({ ...form, model: e.target.value })}
+              className={inputClass}
+              placeholder="Model name"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-white/80">Year</label>
+            <input
+              type="number"
+              value={form.year}
+              onChange={(e) => setForm({ ...form, year: e.target.value })}
+              className={inputClass}
+              placeholder="2024"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-white/80">Price</label>
             <input
               type="number"
               value={form.price}
               onChange={(e) => setForm({ ...form, price: e.target.value })}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none"
+              className={inputClass}
               placeholder="Price"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-white/80">
-              Image URL
-            </label>
+            <label className="mb-2 block text-sm font-medium text-white/80">Car Image</label>
             <input
-              value={form.image}
-              onChange={(e) => setForm({ ...form, image: e.target.value })}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none"
-              placeholder="https://..."
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className={inputClass}
             />
+            <p className="mt-2 text-xs text-white/50">
+              Upload a car image. The file will go to Cloudinary and the URL will be saved.
+            </p>
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-slate-950/80 p-6">
-          <p className="text-sm text-cyan-300">{editing ? "Edit car" : "Create car"}</p>
-          <p className="mt-3 text-white/75">
-            {editing
-              ? "Update the existing car details and save changes."
-              : "Add a new car listing to your inventory."}
-          </p>
+        {imagePreview && (
+          <div className="grid gap-3 md:max-w-md">
+            <p className="text-sm font-medium text-white/80">Image Preview</p>
+            <div className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-slate-950/80">
+              <img
+                src={imagePreview}
+                alt="Selected car"
+                className="h-56 w-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-white/80">Description</label>
+          <textarea
+            rows={4}
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            className={inputClass}
+            placeholder="Short vehicle description"
+          />
+        </div>
+
+        <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white/80">
+          <input
+            type="checkbox"
+            checked={form.isAvailable}
+            onChange={(e) => setForm({ ...form, isAvailable: e.target.checked })}
+            className="h-4 w-4 accent-cyan-400"
+          />
+          Available for listing
+        </label>
+
+        <div className="flex flex-wrap gap-3">
           <button
             type="submit"
             disabled={saving}
-            className="mt-6 w-full rounded-full bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
+            className="rounded-full bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
           >
             {editing ? "Update Car" : "Create Car"}
           </button>
@@ -171,7 +283,7 @@ export const AdminCars = () => {
             <button
               type="button"
               onClick={resetForm}
-              className="mt-3 w-full rounded-full border border-white/10 bg-white/5 px-5 py-3 text-white transition hover:bg-white/10"
+              className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-white transition hover:bg-white/10"
             >
               Cancel edit
             </button>
@@ -181,27 +293,53 @@ export const AdminCars = () => {
 
       <div className="rounded-[2rem] border border-white/10 bg-white/6 p-6 shadow-2xl backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold text-white">Car Listings</h2>
-          <p className="text-sm text-white/70">{cars.length} cars</p>
+          <div>
+            <h2 className="text-2xl font-bold text-white">Car Listings</h2>
+            <p className="mt-2 text-sm text-white/70">{cars.length} cars</p>
+          </div>
         </div>
 
         {loading ? (
           <div className="mt-8 text-white/70">Loading cars...</div>
         ) : cars.length === 0 ? (
-          <div className="mt-8 text-white/70">No cars found.</div>
+          <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-6 text-white/70">
+            No cars found. Create the first listing above.
+          </div>
         ) : (
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 grid gap-4">
             {cars.map((car) => (
               <div
                 key={car._id}
-                className="flex flex-col gap-4 rounded-[1.75rem] border border-white/10 bg-slate-950/80 p-4 md:flex-row md:items-center md:justify-between"
+                className="grid gap-4 rounded-[1.75rem] border border-white/10 bg-slate-950/80 p-4 md:grid-cols-[220px_1fr_auto]"
               >
-                <div className="space-y-2">
-                  <p className="text-sm text-cyan-300">{car.brand || "Vehicle"}</p>
-                  <h3 className="text-xl font-semibold text-white">{car.name}</h3>
-                  <p className="text-sm text-white/70">Price: {car.price ? `₹${car.price}` : "N/A"}</p>
+                <div className="h-44 overflow-hidden rounded-[1.25rem] bg-slate-900">
+                  {car.image ? (
+                    <img src={car.image} alt={car.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-white/50">
+                      No image
+                    </div>
+                  )}
                 </div>
-                <div className="flex gap-3">
+
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm text-cyan-300">{car.brand || "Vehicle"}</p>
+                    <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-white/70">
+                      {car.isAvailable === false ? "Sold" : "Available"}
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-semibold text-white">{car.name}</h3>
+                  <p className="text-sm text-white/70">{car.description || "No description available."}</p>
+                  <div className="grid gap-2 text-sm text-white/70 sm:grid-cols-2">
+                    <span>Model: {car.model || "N/A"}</span>
+                    <span>Year: {car.year || "N/A"}</span>
+                    <span>Price: {formatPrice(car.price)}</span>
+                    <span>Updated: {new Date(car.updatedAt || car.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 md:items-end">
                   <button
                     type="button"
                     onClick={() => handleEdit(car)}

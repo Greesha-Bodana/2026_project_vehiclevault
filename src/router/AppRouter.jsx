@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "../components/Login";
 import Signup from "../components/Signup";
 import ForgotPassword from "../components/ForgotPassword";
@@ -9,9 +9,7 @@ import { AdminUsers } from "../components/admin/AdminUsers";
 import { AdminCars } from "../components/admin/AdminCars";
 import { AdminDashboard } from "../components/admin/AdminDashboard";
 import { AdminNotifications } from "../components/admin/AdminNotifications";
-import { GetApiDemo } from "../components/user/GetApiDemo";
 import { UserHome } from "../components/user/UserHome";
-import { UseEffectDemo } from "../components/user/UseEffectDemo";
 import { CarCatalog } from "../components/user/CarCatalog";
 import { CarDetails } from "../components/user/CarDetails";
 import { UserDashboard } from "../components/user/UserDashboard";
@@ -37,9 +35,7 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <UserDashboard /> },
       { path: "cars", element: <CarCatalog /> },
       { path: "cars/:id", element: <CarDetails /> },
-      { path: "compare", element: <CompareCars /> },
-      { path: "getapidemo", element: <GetApiDemo /> },
-      { path: "useeffectdemo", element: <UseEffectDemo /> }
+      { path: "compare", element: <CompareCars /> }
     ]
   },
   {
