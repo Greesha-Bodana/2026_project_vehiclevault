@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../../services/api";
+import { resolveImageUrl } from "../../utils/resolveImageUrl";
 
 export const CarCatalog = () => {
   const [cars, setCars] = useState([]);
@@ -245,17 +246,17 @@ export const CarCatalog = () => {
           </div>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3">
           {sortedCars.map((car) => (
             <article
               key={car._id}
-              className={`overflow-hidden rounded-[1.75rem] border bg-slate-900/80 shadow-xl transition hover:-translate-y-1 ${
+              className={`flex h-full flex-col overflow-hidden rounded-[1.75rem] border bg-slate-900/80 shadow-xl transition hover:-translate-y-1 ${
                 compareSelection.includes(car._id)
                   ? "border-cyan-400/60"
                   : "border-white/10 hover:border-cyan-400"
               }`}
             >
-              <div className="relative h-56 overflow-hidden bg-slate-950">
+              <div className="relative aspect-[16/10] min-h-[270px] overflow-hidden bg-slate-950">
                 <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-full bg-slate-950/90 px-3 py-2 text-sm text-white shadow-lg shadow-black/20">
                   <input
                     type="checkbox"
@@ -267,9 +268,9 @@ export const CarCatalog = () => {
                 </div>
                 {car.image ? (
                   <img
-                    src={car.image}
+                    src={resolveImageUrl(car.image)}
                     alt={car.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover object-center"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center bg-slate-800 text-white/60">
@@ -277,7 +278,7 @@ export const CarCatalog = () => {
                   </div>
                 )}
               </div>
-              <div className="space-y-4 p-6">
+              <div className="flex flex-1 flex-col space-y-4 p-6">
                 <div>
                   <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
                     {car.brand || "Unknown brand"}
@@ -287,7 +288,7 @@ export const CarCatalog = () => {
                   </h2>
                 </div>
 
-                <div className="grid gap-2 text-sm text-white/70">
+                <div className="flex-1 space-y-4 text-sm text-white/70">
                   <p>{car.description || car.summary || "No description available."}</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <span className="rounded-2xl bg-white/5 px-3 py-2">
@@ -302,7 +303,7 @@ export const CarCatalog = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2">
                   <Link
                     to={`/user/cars/${car._id}`}
                     className="inline-flex rounded-full bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"

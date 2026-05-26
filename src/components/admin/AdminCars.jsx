@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import API from "../../services/api";
 import { toast } from "react-toastify";
+import { resolveImageUrl } from "../../utils/resolveImageUrl";
 
 const emptyForm = {
   name: "",
@@ -132,7 +133,7 @@ export const AdminCars = () => {
       isAvailable: car.isAvailable !== false
     });
     setSelectedImageFile(null);
-    setImagePreview(car.image || "");
+    setImagePreview(resolveImageUrl(car.image) || "");
   };
 
   const handleDelete = async (id) => {
@@ -314,7 +315,11 @@ export const AdminCars = () => {
               >
                 <div className="h-44 overflow-hidden rounded-[1.25rem] bg-slate-900">
                   {car.image ? (
-                    <img src={car.image} alt={car.name} className="h-full w-full object-cover" />
+                    <img
+                      src={resolveImageUrl(car.image)}
+                      alt={car.name}
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
                     <div className="flex h-full items-center justify-center text-white/50">
                       No image

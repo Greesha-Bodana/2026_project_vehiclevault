@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import API from "../../services/api";
+import { resolveImageUrl } from "../../utils/resolveImageUrl";
 
 export const CompareCars = () => {
   const [searchParams] = useSearchParams();
@@ -50,16 +51,39 @@ export const CompareCars = () => {
 
   if (error) {
     return (
-      <div className="space-y-6 rounded-[2rem] border border-white/10 bg-white/6 p-8 shadow-2xl backdrop-blur">
-        <h1 className="text-3xl font-bold text-white">Comparison unavailable</h1>
-        <p className="text-white/70">{error}</p>
-        <Link
-          to="/user/cars"
-          className="inline-flex rounded-full border border-cyan-400/40 bg-cyan-500/10 px-5 py-3 text-sm text-cyan-200 transition hover:bg-cyan-500/20"
-        >
-          Back to catalog
-        </Link>
-      </div>
+      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(6,182,212,0.16),transparent_30%),linear-gradient(135deg,rgba(15,23,42,0.96),rgba(2,6,23,0.98))] shadow-2xl">
+        <div className="grid items-center gap-8 p-8 lg:grid-cols-[0.9fr_1.1fr] lg:p-10">
+          <div className="space-y-5">
+            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">Compare Cars</p>
+            <h1 className="text-4xl font-black leading-tight text-white">
+              Select two cars before opening comparison.
+            </h1>
+            <p className="max-w-xl text-white/70">{error}</p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/user/cars"
+                className="inline-flex rounded-full bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+              >
+                Go to car catalog
+              </Link>
+              <Link
+                to="/user"
+                className="inline-flex rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Back to home
+              </Link>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-950/70 p-4">
+            <img
+              src="https://images.unsplash.com/photo-1494976388901-7507ad0d48ec?auto=format&fit=crop&w=1400&q=80"
+              alt="Cars ready for comparison"
+              className="h-full max-h-[380px] w-full rounded-[1.4rem] object-cover"
+            />
+          </div>
+        </div>
+      </section>
     );
   }
 
@@ -91,7 +115,7 @@ export const CompareCars = () => {
             <div className="relative h-72 overflow-hidden bg-slate-950">
               {car.image ? (
                 <img
-                  src={car.image}
+                  src={resolveImageUrl(car.image)}
                   alt={car.name}
                   className="h-full w-full object-cover"
                 />

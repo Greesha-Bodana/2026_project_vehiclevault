@@ -4,13 +4,24 @@ import { toast } from "react-toastify";
 
 export const AdminUsers = () => {
   const [users, setUsers] = useState([]);
+  const [activeUserCount, setActiveUserCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await API.get("/user");
-      setUsers(res.data || []);
+      const [usersRes, activeUsersRes] = await Promise.all([
+        API.get("/user"),
+        API.get("/user/active")
+      ]);
+
+      const usersPayload = usersRes.data;
+      const userList = Array.isArray(usersPayload)
+        ? usersPayload
+        : usersPayload?.data || usersPayload?.users || [];
+
+      setUsers(userList);
+      setActiveUserCount(activeUsersRes.data?.count || 0);
     } catch (err) {
       console.error(err);
       toast.error("Unable to load users.");
@@ -39,8 +50,13 @@ export const AdminUsers = () => {
             <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">Directory</p>
             <h2 className="mt-2 text-2xl font-bold text-white">Registered users</h2>
           </div>
-          <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75">
-            {users.length} users
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-100">
+              {activeUserCount} logged in
+            </div>
+            <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75">
+              {users.length} users
+            </div>
           </div>
         </div>
 

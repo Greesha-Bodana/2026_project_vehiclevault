@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../../services/api";
+import { resolveImageUrl } from "../../utils/resolveImageUrl";
 
 export const CarDetails = () => {
   const { id } = useParams();
@@ -64,11 +65,15 @@ export const CarDetails = () => {
         <h1 className="mt-3 text-4xl font-bold text-white">{car.name}</h1>
         <p className="mt-4 text-white/80">Price: {priceText}</p>
         {car.image && (
-          <img
-            src={car.image}
-            alt={car.name}
-            className="mt-6 w-full rounded-[1.75rem] object-cover"
-          />
+          <div className="mt-6 overflow-hidden rounded-[1.75rem] border border-white/10 bg-slate-950 shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+            <img
+              src={resolveImageUrl(car.image)}
+              alt={car.name}
+              loading="lazy"
+              decoding="async"
+              className="h-[clamp(18rem,48vw,34rem)] w-full object-cover object-center"
+            />
+          </div>
         )}
       </div>
 

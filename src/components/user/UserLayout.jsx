@@ -1,38 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 export const UserLayout = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("vehiclevault_token");
-
-  const parseJwtPayload = (tokenValue) => {
-    if (!tokenValue) return null;
-    try {
-      const payload = tokenValue.split(".")[1];
-      if (!payload) return null;
-      const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-      return JSON.parse(decodeURIComponent(escape(decoded)));
-    } catch {
-      return null;
-    }
-  };
-
-  const getRole = () => {
-    const storedRole = localStorage.getItem("vehiclevault_role")?.toString().trim().toUpperCase();
-    if (storedRole) return storedRole;
-
-    const payload = parseJwtPayload(token);
-    if (!payload) return null;
-
-    return (
-      payload.role ||
-      payload.roles ||
-      payload.user?.role ||
-      (Array.isArray(payload.roles) ? payload.roles[0] : null)
-    )?.toString()?.trim()?.toUpperCase() || null;
-  };
-
-  const [role, setRole] = useState(getRole);
 
   const navLinkClass = ({ isActive }) =>
     `rounded-full border border-transparent px-4 py-2.5 text-sm font-medium transition-all ${
@@ -79,11 +49,6 @@ export const UserLayout = () => {
             <NavLink to="/user/dashboard" className={navLinkClass}>
               Dashboard
             </NavLink>
-            {role && ["ADMIN", "OWNER", "SUBADMIN"].includes(role) && (
-              <NavLink to="/admin" className={navLinkClass}>
-                Admin
-              </NavLink>
-            )}
           </div>
 
           <div className="flex items-center gap-3">

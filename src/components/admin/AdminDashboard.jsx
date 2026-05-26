@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../../services/api";
 
@@ -9,6 +9,7 @@ export const AdminDashboard = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [recentCars, setRecentCars] = useState([]);
   const [recentUsers, setRecentUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -19,8 +20,11 @@ export const AdminDashboard = () => {
           API.get("/user/active"),
           API.get("/notification")
         ]);
+
         const users = Array.isArray(usersRes.data) ? usersRes.data : usersRes.data?.data || [];
-        const cars = Array.isArray(carsRes.data) ? carsRes.data : carsRes.data?.cars || carsRes.data?.data || [];
+        const cars = Array.isArray(carsRes.data)
+          ? carsRes.data
+          : carsRes.data?.cars || carsRes.data?.data || [];
         const activeUsers = activeUsersRes.data?.count || 0;
         const notifications = Array.isArray(notificationsRes.data)
           ? notificationsRes.data
@@ -34,6 +38,8 @@ export const AdminDashboard = () => {
         setRecentCars(cars.slice(0, 5));
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -42,13 +48,16 @@ export const AdminDashboard = () => {
 
   return (
     <div className="space-y-10">
-      <section className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-8 shadow-2xl backdrop-blur-xl">
-        <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(6,182,212,0.22),transparent_38%),linear-gradient(135deg,rgba(2,6,23,0.98),rgba(15,23,42,0.96))] shadow-2xl">
+        <div className="grid gap-8 p-8 lg:grid-cols-[1.35fr_0.95fr] lg:items-center lg:p-10">
           <div className="space-y-5">
             <p className="text-sm uppercase tracking-[0.35em] text-cyan-300">Admin Console</p>
-            <h1 className="text-5xl font-black text-white leading-tight">VehicleVault Admin Dashboard</h1>
-            <p className="max-w-3xl text-white/70 text-base leading-7">
-              Monitor your marketplace, manage users and car listings, and publish announcements from a single admin control center.
+            <h1 className="max-w-3xl text-5xl font-black leading-tight text-white">
+              VehicleVault control center.
+            </h1>
+            <p className="max-w-3xl text-base leading-7 text-white/70">
+              Monitor marketplace activity, manage users and listings, and publish
+              announcements from one clean admin workspace.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -72,31 +81,42 @@ export const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <article className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-lg shadow-cyan-500/10">
-              <p className="text-sm uppercase tracking-[0.28em] text-white/60">Active users (24h)</p>
-              <p className="mt-4 text-4xl font-bold text-white">{activeUserCount}</p>
-              <p className="mt-2 text-sm text-white/60">Logged in recently • Total: {userCount}</p>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
+            <article className="rounded-[1.5rem] border border-white/10 bg-slate-950/75 p-6 shadow-lg shadow-cyan-500/5">
+              <p className="text-xs uppercase tracking-[0.28em] text-white/55">Active users</p>
+              <p className="mt-4 text-4xl font-black text-white">{activeUserCount}</p>
+              <p className="mt-2 text-sm text-white/60">Logged in recently - Total: {userCount}</p>
+              <Link
+                to="/admin/active-users"
+                className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+              >
+                View login activity
+              </Link>
             </article>
-            <article className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-lg shadow-cyan-500/10">
-              <p className="text-sm uppercase tracking-[0.28em] text-white/60">Car listings</p>
-              <p className="mt-4 text-4xl font-bold text-white">{carCount}</p>
+            <article className="rounded-[1.5rem] border border-white/10 bg-slate-950/75 p-6 shadow-lg shadow-cyan-500/5">
+              <p className="text-xs uppercase tracking-[0.28em] text-white/55">Car listings</p>
+              <p className="mt-4 text-4xl font-black text-white">{carCount}</p>
               <p className="mt-2 text-sm text-white/60">Vehicle inventory live</p>
             </article>
-            <article className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 shadow-lg shadow-cyan-500/10">
-              <p className="text-sm uppercase tracking-[0.28em] text-white/60">Announcements</p>
-              <p className="mt-4 text-4xl font-bold text-white">{notificationCount}</p>
+            <article className="rounded-[1.5rem] border border-white/10 bg-slate-950/75 p-6 shadow-lg shadow-cyan-500/5">
+              <p className="text-xs uppercase tracking-[0.28em] text-white/55">Announcements</p>
+              <p className="mt-4 text-4xl font-black text-white">{notificationCount}</p>
               <p className="mt-2 text-sm text-white/60">Messages delivered</p>
+            </article>
+            <article className="rounded-[1.5rem] border border-cyan-400/15 bg-cyan-400/10 p-6 shadow-lg shadow-cyan-500/5">
+              <p className="text-xs uppercase tracking-[0.28em] text-cyan-100">Workspace</p>
+              <p className="mt-4 text-4xl font-black text-white">Live</p>
+              <p className="mt-2 text-sm text-white/70">Everything is synced to the current admin session</p>
             </article>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.45fr_0.95fr]">
+      <section className="grid gap-6 xl:grid-cols-[1.25fr_1fr]">
         <div className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-8 shadow-2xl backdrop-blur-xl">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">Admin actions</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">Admin actions</p>
               <h2 className="mt-2 text-3xl font-bold text-white">Control panel</h2>
             </div>
             <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-cyan-200">
@@ -104,34 +124,34 @@ export const AdminDashboard = () => {
             </span>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
             <Link
               to="/admin/users"
-              className="rounded-[1.75rem] border border-white/10 bg-slate-950/80 p-6 text-left text-white transition hover:border-cyan-400/40 hover:bg-slate-950/95"
+              className="rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-6 text-left text-white transition hover:-translate-y-1 hover:border-cyan-400/40 hover:bg-slate-950"
             >
               <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">Users</p>
               <p className="mt-3 text-xl font-semibold">Review and manage buyers</p>
             </Link>
             <Link
+              to="/admin/active-users"
+              className="rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-6 text-left text-white transition hover:-translate-y-1 hover:border-cyan-400/40 hover:bg-slate-950"
+            >
+              <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">Activity</p>
+              <p className="mt-3 text-xl font-semibold">See logged-in users count</p>
+            </Link>
+            <Link
               to="/admin/cars"
-              className="rounded-[1.75rem] border border-white/10 bg-slate-950/80 p-6 text-left text-white transition hover:border-blue-400/40 hover:bg-slate-950/95"
+              className="rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-6 text-left text-white transition hover:-translate-y-1 hover:border-blue-400/40 hover:bg-slate-950"
             >
               <p className="text-sm uppercase tracking-[0.28em] text-blue-300">Cars</p>
               <p className="mt-3 text-xl font-semibold">Approve inventory changes</p>
             </Link>
             <Link
               to="/admin/notifications"
-              className="rounded-[1.75rem] border border-white/10 bg-slate-950/80 p-6 text-left text-white transition hover:border-white/30 hover:bg-slate-950/95"
+              className="rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-6 text-left text-white transition hover:-translate-y-1 hover:border-white/30 hover:bg-slate-950"
             >
               <p className="text-sm uppercase tracking-[0.28em] text-white/60">Notifications</p>
               <p className="mt-3 text-xl font-semibold">Send buyer alerts</p>
-            </Link>
-            <Link
-              to="/admin/dashboard"
-              className="rounded-[1.75rem] border border-white/10 bg-emerald-500/10 p-6 text-left text-white transition hover:bg-emerald-500/15"
-            >
-              <p className="text-sm uppercase tracking-[0.28em] text-emerald-200">Overview</p>
-              <p className="mt-3 text-xl font-semibold">Return to dashboard summary</p>
             </Link>
           </div>
         </div>
@@ -139,49 +159,60 @@ export const AdminDashboard = () => {
         <div className="space-y-6 rounded-[2rem] border border-white/10 bg-slate-950/90 p-8 shadow-2xl backdrop-blur-xl">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">Recent activity</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">Recent activity</p>
               <h2 className="mt-2 text-3xl font-bold text-white">Latest updates</h2>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5">
-              <p className="text-sm text-white/60">New users</p>
-              {recentUsers.length === 0 ? (
-                <p className="mt-3 text-sm text-white/70">No new user activity yet.</p>
-              ) : (
-                <ul className="mt-3 space-y-3 text-white/80">
-                  {recentUsers.map((user) => (
-                    <li key={user._id} className="flex items-center justify-between rounded-2xl bg-slate-950/80 px-4 py-3">
-                      <div>
-                        <p className="font-semibold text-white">{user.name || user.email}</p>
-                        <p className="text-xs text-white/50">{user.email}</p>
-                      </div>
-                      <span className="rounded-full bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.25em] text-cyan-200">
-                        {user.role || "USER"}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+          {loading ? (
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 text-white/70">
+              Loading dashboard...
             </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+                <p className="text-sm uppercase tracking-[0.24em] text-white/60">New users</p>
+                {recentUsers.length === 0 ? (
+                  <p className="mt-3 text-sm text-white/70">No new user activity yet.</p>
+                ) : (
+                  <ul className="mt-3 space-y-3 text-white/80">
+                    {recentUsers.map((user) => (
+                      <li
+                        key={user._id}
+                        className="flex items-center justify-between rounded-2xl bg-slate-950/80 px-4 py-3"
+                      >
+                        <div>
+                          <p className="font-semibold text-white">{user.name || user.email}</p>
+                          <p className="text-xs text-white/50">{user.email}</p>
+                        </div>
+                        <span className="rounded-full bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.25em] text-cyan-200">
+                          {user.role || "USER"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
 
-            <div className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5">
-              <p className="text-sm text-white/60">New car listings</p>
-              {recentCars.length === 0 ? (
-                <p className="mt-3 text-sm text-white/70">No recent car updates yet.</p>
-              ) : (
-                <ul className="mt-3 space-y-3 text-white/80">
-                  {recentCars.map((car) => (
-                    <li key={car._id} className="rounded-2xl bg-slate-950/80 px-4 py-3">
-                      <p className="font-semibold text-white">{car.name || "Untitled"}</p>
-                      <p className="text-sm text-white/60">{car.brand || "Brand"} • ₹{car.price || "N/A"}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+                <p className="text-sm uppercase tracking-[0.24em] text-white/60">New car listings</p>
+                {recentCars.length === 0 ? (
+                  <p className="mt-3 text-sm text-white/70">No recent car updates yet.</p>
+                ) : (
+                  <ul className="mt-3 space-y-3 text-white/80">
+                    {recentCars.map((car) => (
+                      <li key={car._id} className="rounded-2xl bg-slate-950/80 px-4 py-3">
+                        <p className="font-semibold text-white">{car.name || "Untitled"}</p>
+                        <p className="text-sm text-white/60">
+                          {car.brand || "Brand"} - Rs. {car.price || "N/A"}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
     </div>

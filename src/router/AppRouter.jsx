@@ -9,6 +9,7 @@ import { AdminUsers } from "../components/admin/AdminUsers";
 import { AdminCars } from "../components/admin/AdminCars";
 import { AdminDashboard } from "../components/admin/AdminDashboard";
 import { AdminNotifications } from "../components/admin/AdminNotifications";
+import { AdminActiveUsers } from "../components/admin/AdminActiveUsers";
 import { UserHome } from "../components/user/UserHome";
 import { CarCatalog } from "../components/user/CarCatalog";
 import { CarDetails } from "../components/user/CarDetails";
@@ -49,6 +50,7 @@ const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       { path: "dashboard", element: <AdminDashboard /> },
       { path: "users", element: <AdminUsers /> },
+      { path: "active-users", element: <AdminActiveUsers /> },
       { path: "cars", element: <AdminCars /> },
       { path: "notifications", element: <AdminNotifications /> }
     ]
